@@ -1,0 +1,51 @@
+# Build recipe for libretro's CI (git.libretro.com).
+# GitHub ignores this file; it only runs once the libretro team mirrors the
+# repository on their GitLab server. See "Getting a core built by libretro" in
+# README.md.
+#
+# Each job extends a template from libretro-infrastructure/ci-templates, which
+# runs `make` with the values the Makefile expects:
+#   windows-x64-mingw  platform=win64, MinGW-w64 static toolchain
+#   linux-x64          platform=unix, gcc on Ubuntu 16.04 (glibc 2.23)
+#   linux-aarch64      platform=unix, native gcc on an ARM64 machine
+
+.core-defs:
+  variables:
+    JNI_PATH: .
+    CORENAME: sample   # must match TARGET_NAME in the Makefile
+
+include:
+  # Windows x86_64
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/windows-x64-mingw.yml'
+
+  # Linux x86_64
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/linux-x64.yml'
+
+  # Linux aarch64
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/linux-aarch64.yml'
+
+stages:
+  - build-prepare
+  - build-shared
+  - build-static
+
+# Windows x86_64
+libretro-build-windows-x64:
+  extends:
+    - .libretro-windows-x64-mingw-make-default
+    - .core-defs
+
+# Linux x86_64
+libretro-build-linux-x64:
+  extends:
+    - .libretro-linux-x64-make-default
+    - .core-defs
+
+# Linux aarch64
+libretro-build-linux-aarch64:
+  extends:
+    - .libretro-linux-aarch64-make-default
+    - .core-defs

@@ -81,4 +81,13 @@ RUN printf '%s\n' \
 
 ENV BASH_ENV=/etc/profile.d/mingw-env.sh
 
+# 6. Cross compiler for Linux aarch64 (make platform=linux-aarch64)
+#    A separate layer, so adding it does not rebuild the layers above.
+#    Its glibc (libc6-dev-arm64-cross) has the same version as Ubuntu's: 2.39 on 24.04.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc-aarch64-linux-gnu \
+    g++-aarch64-linux-gnu \
+    binutils-aarch64-linux-gnu \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /workspaces

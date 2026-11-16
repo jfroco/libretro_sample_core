@@ -19,6 +19,16 @@
       ],
       "cStandard": "gnu17",
       "intelliSenseMode": "linux-gcc-x64"
+    },
+    {
+      "name": "Linux (aarch64)",
+      "compilerPath": "/usr/bin/aarch64-linux-gnu-gcc",
+      "includePath": [
+        "${workspaceFolder}/libretro-common/include",
+        "${workspaceFolder}/src"
+      ],
+      "cStandard": "gnu17",
+      "intelliSenseMode": "linux-gcc-arm64"
     }
   ],
   "version": 4

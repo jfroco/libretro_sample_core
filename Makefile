@@ -5,8 +5,12 @@
 #   make clean
 #
 # Supported platforms (autodetected when `platform` is empty):
-#   unix, linux   Linux x86_64 (native gcc)        -> sample_libretro.so
-#   win, win64    Windows x86_64 (MinGW-w64)       -> sample_libretro.dll
+#   unix, linux     Linux, native gcc (x86_64 here; aarch64 on an ARM64 host) -> sample_libretro.so
+#   linux-aarch64   Linux aarch64, cross-compiled with aarch64-linux-gnu-gcc  -> sample_libretro.so
+#   win, win64      Windows x86_64 (MinGW-w64)                                -> sample_libretro.dll
+#
+# `win64` and `unix` are the values libretro's CI uses (see .gitlab-ci.yml).
+# `linux-aarch64` is our own name for cross-compiling in the devcontainer.
 #
 # To add a platform, add a block below that sets TARGET, fpic and SHARED.
 # The list of sources lives in Makefile.common (also used by jni/Android.mk later).
@@ -46,11 +50,18 @@ endif
 # Platforms
 # ---------------------------------------------------------------------------
 
-# Linux x86_64
-ifneq (,$(filter $(platform),unix linux))
+# Linux (native, or aarch64 cross-compiled)
+ifneq (,$(filter $(platform),unix linux linux-aarch64))
    TARGET := $(TARGET_NAME)_libretro.so
    fpic   := -fPIC
    SHARED := -shared -Wl,--version-script=$(CORE_DIR)/link.T -Wl,--no-undefined
+   ifeq ($(platform),linux-aarch64)
+      # Cross-compile, unless the host is already aarch64 (then the native gcc is used).
+      ifneq ($(shell uname -m),aarch64)
+         CC  := aarch64-linux-gnu-gcc
+         CXX := aarch64-linux-gnu-g++
+      endif
+   endif
    # The devcontainer exports CC/CXX for Windows (quasi-msys2 win-gcc/win-g++).
    # Use the native compiler for Linux builds unless one was given on the command line.
    ifneq (,$(findstring win-,$(CC)))
@@ -69,7 +80,7 @@ else ifneq (,$(filter $(platform),win win64))
    SHARED := -shared -static -static-libgcc -static-libstdc++ -Wl,--no-undefined
 
 else
-   $(error Unsupported platform '$(platform)'. Use platform=unix or platform=win)
+   $(error Unsupported platform '$(platform)'. Use platform=win, platform=unix or platform=linux-aarch64)
 endif
 
 # ---------------------------------------------------------------------------
@@ -92,8 +103,10 @@ CFLAGS   += $(fpic) $(INCFLAGS) $(WARNINGS) -MMD -MP
 CXXFLAGS += $(fpic) $(INCFLAGS) $(WARNINGS) -MMD -MP
 LDFLAGS  += $(fpic) $(SHARED)
 
-# Objects go in obj/<platform>/ so switching platforms does not reuse objects.
-OBJDIR  := obj/$(platform)
+# Objects go in obj/<target triple>/ (for example obj/aarch64-linux-gnu/), so
+# switching platform or compiler does not reuse objects built for another one.
+TRIPLE  := $(shell $(CC) -dumpmachine 2>/dev/null)
+OBJDIR  := obj/$(if $(TRIPLE),$(TRIPLE),$(platform))
 OBJECTS := $(patsubst $(CORE_DIR)/%,$(OBJDIR)/%,$(SOURCES_C:.c=.o) $(SOURCES_CXX:.cpp=.o))
 
 # Link with the C++ driver only when there are C++ sources.
@@ -103,9 +116,15 @@ LINKER := $(if $(strip $(SOURCES_CXX)),$(CXX),$(CC))
 # Rules
 # ---------------------------------------------------------------------------
 
-all: $(TARGET)
+# Each platform links inside its own OBJDIR, and `all` copies the result to the
+# root, where RetroArch and libretro's CI expect it. Both Linux builds produce
+# sample_libretro.so; copying every time makes the file in the root always match
+# the platform you just built, instead of make treating the other one's .so as
+# up to date.
+all: $(OBJDIR)/$(TARGET)
+	cp $< $(TARGET)
 
-$(TARGET): $(OBJECTS)
+$(OBJDIR)/$(TARGET): $(OBJECTS)
 	$(LINKER) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 
 $(OBJDIR)/%.o: $(CORE_DIR)/%.c

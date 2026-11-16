@@ -16,6 +16,13 @@
       "problemMatcher": ["$gcc"]
     },
     {
+      "label": "Build Linux (aarch64)",
+      "type": "shell",
+      "command": "make -j$(nproc) platform=linux-aarch64",
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
       "label": "Check Windows DLL",
       "type": "shell",
       "command": "file sample_libretro.dll && x86_64-w64-mingw32-objdump -p sample_libretro.dll | grep 'DLL Name' && x86_64-w64-mingw32-objdump -p sample_libretro.dll | grep -oE 'retro_[a-z_]+' | sort -u",
@@ -28,9 +35,15 @@
       "problemMatcher": []
     },
     {
+      "label": "Check Linux aarch64 .so",
+      "type": "shell",
+      "command": "file sample_libretro.so && aarch64-linux-gnu-readelf -d sample_libretro.so | grep NEEDED && aarch64-linux-gnu-nm -D --defined-only sample_libretro.so | grep -oE 'retro_[a-z_]+' | sort -u && aarch64-linux-gnu-objdump -T sample_libretro.so | grep -oE 'GLIBC_[0-9.]+' | sort -uV | tail -1",
+      "problemMatcher": []
+    },
+    {
       "label": "Clean",
       "type": "shell",
-      "command": "make clean platform=win && make clean platform=unix",
+      "command": "make clean platform=win && make clean platform=unix && make clean platform=linux-aarch64",
       "problemMatcher": []
     }
   ]
