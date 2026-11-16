@@ -2,6 +2,7 @@
 #
 # Usage:
 #   make [platform=<platform>] [DEBUG=1]
+#   make strip [platform=<platform>]   build, then strip the core in the root (for releases)
 #   make clean
 #
 # Supported platforms (autodetected when `platform` is empty):
@@ -55,11 +56,13 @@ ifneq (,$(filter $(platform),unix linux linux-aarch64))
    TARGET := $(TARGET_NAME)_libretro.so
    fpic   := -fPIC
    SHARED := -shared -Wl,--version-script=$(CORE_DIR)/link.T -Wl,--no-undefined
+   STRIP  ?= strip
    ifeq ($(platform),linux-aarch64)
       # Cross-compile, unless the host is already aarch64 (then the native gcc is used).
       ifneq ($(shell uname -m),aarch64)
-         CC  := aarch64-linux-gnu-gcc
-         CXX := aarch64-linux-gnu-g++
+         CC    := aarch64-linux-gnu-gcc
+         CXX   := aarch64-linux-gnu-g++
+         STRIP := aarch64-linux-gnu-strip
       endif
    endif
    # The devcontainer exports CC/CXX for Windows (quasi-msys2 win-gcc/win-g++).
@@ -78,6 +81,7 @@ else ifneq (,$(filter $(platform),win win64))
    TARGET := $(TARGET_NAME)_libretro.dll
    fpic   :=
    SHARED := -shared -static -static-libgcc -static-libstdc++ -Wl,--no-undefined
+   STRIP  ?= x86_64-w64-mingw32-strip
 
 else
    $(error Unsupported platform '$(platform)'. Use platform=win, platform=unix or platform=linux-aarch64)
@@ -135,9 +139,15 @@ $(OBJDIR)/%.o: $(CORE_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+# Strip only the copy in the root: the one in OBJDIR keeps its symbols for debugging.
+# --strip-unneeded keeps the exported retro_* functions.
+# libretro's CI does not need this target: its templates strip the core after `make`.
+strip: all
+	$(STRIP) --strip-unneeded $(TARGET)
+
 clean:
 	rm -rf $(OBJDIR) $(TARGET)
 
-.PHONY: all clean
+.PHONY: all strip clean
 
 -include $(OBJECTS:.o=.d)

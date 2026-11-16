@@ -33,6 +33,7 @@ make -j$(nproc) platform=win             # -> sample_libretro.dll (Windows x86_6
 make -j$(nproc) platform=unix            # -> sample_libretro.so  (Linux x86_64)
 make -j$(nproc) platform=linux-aarch64   # -> sample_libretro.so  (Linux aarch64)
 make DEBUG=1 platform=win                # no optimization, with debug symbols
+make -j$(nproc) platform=win strip       # build, then strip (for releases)
 make clean platform=win
 ```
 
@@ -46,6 +47,24 @@ Each build is linked in `obj/<target triple>/` and then copied to the root. Both
 named `sample_libretro.so`, because that is the name RetroArch expects, so the file in the root is
 always the one for the platform you built last. The other one stays in its `obj/` folder, for
 example `obj/aarch64-linux-gnu/sample_libretro.so`.
+
+### Stripping for releases
+
+`make strip` builds the core and then removes the symbols it does not need with
+`<strip> --strip-unneeded`, using the right tool for each platform:
+
+| Platform | Strip tool |
+|---|---|
+| `win` | `x86_64-w64-mingw32-strip` |
+| `unix` | `strip` |
+| `linux-aarch64` | `aarch64-linux-gnu-strip` |
+
+The exported `retro_*` functions are kept, so the core still loads. Only the copy in the root is
+stripped; the one in `obj/<target triple>/` keeps its symbols for debugging. Use the
+**Release … (stripped)** tasks in VS Code, or pass `STRIP=<tool>` to use another strip tool.
+
+libretro's CI does not use this target: its templates set `STRIP_CORE_LIB: 1` and strip the core
+themselves after running `make`.
 
 ### Linux aarch64 (handhelds)
 

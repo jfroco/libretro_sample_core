@@ -23,6 +23,27 @@
       "problemMatcher": ["$gcc"]
     },
     {
+      "label": "Release Windows (stripped)",
+      "type": "shell",
+      "command": "make -j$(nproc) platform=win strip",
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Release Linux x86_64 (stripped)",
+      "type": "shell",
+      "command": "make -j$(nproc) platform=unix strip",
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Release Linux aarch64 (stripped)",
+      "type": "shell",
+      "command": "make -j$(nproc) platform=linux-aarch64 strip",
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
       "label": "Check Windows DLL",
       "type": "shell",
       "command": "file sample_libretro.dll && x86_64-w64-mingw32-objdump -p sample_libretro.dll | grep 'DLL Name' && x86_64-w64-mingw32-objdump -p sample_libretro.dll | grep -oE 'retro_[a-z_]+' | sort -u",
