@@ -1,0 +1,37 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Windows (mingw64)",
+      "type": "shell",
+      "command": "make -j$(nproc) platform=win",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Build Linux (x86_64)",
+      "type": "shell",
+      "command": "make -j$(nproc) platform=unix",
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Check Windows DLL",
+      "type": "shell",
+      "command": "file sample_libretro.dll && x86_64-w64-mingw32-objdump -p sample_libretro.dll | grep 'DLL Name' && x86_64-w64-mingw32-objdump -p sample_libretro.dll | grep -oE 'retro_[a-z_]+' | sort -u",
+      "problemMatcher": []
+    },
+    {
+      "label": "Check Linux .so",
+      "type": "shell",
+      "command": "file sample_libretro.so && ldd sample_libretro.so && nm -D --defined-only sample_libretro.so | grep -oE 'retro_[a-z_]+' | sort -u && objdump -T sample_libretro.so | grep -oE 'GLIBC_[0-9.]+' | sort -uV | tail -1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "make clean platform=win && make clean platform=unix",
+      "problemMatcher": []
+    }
+  ]
+}

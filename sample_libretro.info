@@ -1,0 +1,32 @@
+# Software Information
+display_name = "Sample (Hello World)"
+authors = "jfroco|Lightnet"
+supported_extensions = ""
+corename = "Sample"
+categories = "Game"
+license = "MIT"
+permissions = ""
+display_version = "1.0"
+
+# Hardware Information
+manufacturer = "N/A"
+systemname = "Sample"
+systemid = "sample"
+
+# Libretro Features
+supports_no_game = "true"
+savestate = "true"
+savestate_features = "deterministic"
+cheats = "false"
+input_descriptors = "true"
+memory_descriptors = "false"
+libretro_saves = "false"
+core_options = "true"
+core_options_version = "2.0"
+load_subsystem = "false"
+hw_render = "false"
+needs_fullpath = "false"
+disk_control = "false"
+is_experimental = "true"
+
+description = "Minimal libretro core used as a template for porting emulators. It runs without content, draws a square you move with the D-Pad, outputs audio (silence or a test tone) and supports core options and save states."

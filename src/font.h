@@ -1,9 +1,18 @@
+/*
+ * font.h - 8x8 bitmap font for ASCII characters 32-126.
+ *
+ * Taken from libretro_hello_world_core by Lightnet (MIT License):
+ * https://github.com/Lightnet/libretro_hello_world_core
+ * See THIRD_PARTY_NOTICES.md.
+ *
+ * Each glyph has 8 rows; the most significant bit is the leftmost pixel.
+ * The table is `static`: include this header in only one .c file.
+ */
 #ifndef FONT_H
 #define FONT_H
 
 #include <stdint.h>
 
-// 8x8 font data for ASCII characters 32-126
 static const uint8_t font_8x8[95][8] = {
     // Space (32)
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},

@@ -1,0 +1,27 @@
+{
+  "name": "libretro core: Windows MinGW64 + Linux x86_64",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      // MINGW64 libraries from quasi-msys2. Add the ones each core needs here
+      // (e.g. _freetype, _ffmpeg, _boost, _python); they are large, so they are not included by default.
+      "QUASI_MSYS2_PACKAGES": "_ntldd _zlib _bzip2 _xz _zstd _libpng _libjpeg-turbo _SDL2 _libxml2 _glew _openal _libogg _libvorbis _flac _lua"
+    }
+  },
+  "containerEnv": {
+    // Target platform for the libretro Makefiles (selects the Windows block)
+    "platform": "win"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.makefile-tools"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "remoteUser": "root"
+}

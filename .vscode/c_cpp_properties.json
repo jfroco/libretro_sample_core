@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "name": "Windows (mingw64)",
+      "compilerPath": "/usr/bin/x86_64-w64-mingw32-gcc-posix",
+      "includePath": [
+        "${workspaceFolder}/libretro-common/include",
+        "${workspaceFolder}/src"
+      ],
+      "cStandard": "gnu17",
+      "intelliSenseMode": "linux-gcc-x64"
+    },
+    {
+      "name": "Linux (x86_64)",
+      "compilerPath": "/usr/bin/gcc",
+      "includePath": [
+        "${workspaceFolder}/libretro-common/include",
+        "${workspaceFolder}/src"
+      ],
+      "cStandard": "gnu17",
+      "intelliSenseMode": "linux-gcc-x64"
+    }
+  ],
+  "version": 4
+}

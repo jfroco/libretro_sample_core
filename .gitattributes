@@ -1,0 +1,6 @@
+# The core is built inside a Linux container: keep LF line endings
+# (a Makefile or shell script with CRLF fails there).
+* text=auto eol=lf
+
+*.dll binary
+*.so  binary
